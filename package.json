@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "prettier": "3.9.6",
+    "tsx": "^4.23.15",
     "turbo": "^2.11.7",
     "typescript": "7.0.2"
   },
@@ -25,8 +26,5 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ],
-  "dependencies": {
-    "zod": "^4.6.5"
-  }
+  ]
 }

@@ -1,0 +1,16 @@
+{
+  "name": "@repo/validation",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "jsonwebtoken": "^9.0.3",
+    "zod": "^4.6.5"
+  },
+  "exports": {
+    "./*": "./*.ts"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10"
+  }
+}
