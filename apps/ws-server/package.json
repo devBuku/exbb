@@ -1,12 +1,12 @@
 {
   "name": "ws-server",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "./src/index.ts",
   "license": "MIT",
   "scripts": {
-    "dev": "tsx watch ./src/index.ts",
     "build": "tsc -b",
-    "start": "node ./dist/index.js"
+    "start": "node ./dist/index.js",
+    "dev": "yarn run build && yarn run start"
   },
   "devDependencies": {
     "@repo/eslint-config": "*",
@@ -14,6 +14,7 @@
     "@types/ws": "^8.18.2"
   },
   "dependencies": {
+    "cookie": "^2.0.1",
     "ws": "^8.22.0"
   }
 }
