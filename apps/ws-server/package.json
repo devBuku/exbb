@@ -13,6 +13,7 @@
     "@types/ws": "^8.18.2"
   },
   "dependencies": {
+    "cookie": "^2.0.1",
     "ws": "^8.22.0"
   }
 }

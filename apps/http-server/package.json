@@ -10,10 +10,12 @@
   },
   "devDependencies": {
     "@repo/typescript-config": "*",
+    "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5.0.6"
   },
   "dependencies": {
-    "express": "^5.2.1",
-    "@repo/validation": "*"
+    "@repo/validation": "*",
+    "cookie-parser": "^1.4.7",
+    "express": "^5.2.1"
   }
 }

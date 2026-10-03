@@ -1,5 +1,6 @@
 import express from "express";
 import { Express, Request, Response } from "express";
+import cookieParser from "cookie-parser";
 import authRouter from "./routes/auth.routes";
 import roomRouter from "./routes/room.routes";
 
@@ -11,6 +12,7 @@ app.get("/health", function (_req: Request, res: Response) {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.use("/api/auth", authRouter);
 app.use("/api/room", roomRouter);
