@@ -14,8 +14,8 @@
     "@types/express": "^5.0.6"
   },
   "dependencies": {
-    "@repo/validation": "*",
     "@repo/backend-common": "*",
+    "@repo/validation": "*",
     "cookie-parser": "^1.4.7",
     "express": "^5.2.1"
   }
