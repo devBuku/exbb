@@ -1,15 +1,12 @@
 {
-  "name": "@repo/validation",
+  "name": "@repo/backend-common",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
-  "dependencies": {
-    "zod": "^4.6.5"
+  "exports": {
+    "./*": "./src/*.ts"
   },
   "devDependencies": {
     "@repo/typescript-config": "*"
-  },
-  "exports": {
-    "./*": "./src/*.ts"
   }
 }

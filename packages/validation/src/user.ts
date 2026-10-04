@@ -6,9 +6,13 @@ const signInSchema = z.object({
 });
 
 const signUpSchema = z.object({
-  name: z.string().min(2),
+  username: z.string().min(2),
   email: z.email(),
   password: z.string().min(8),
 });
 
-export { signInSchema, signUpSchema };
+const createRoomSchema = z.object({
+  name: z.string().min(3).max(20),
+});
+
+export { signInSchema, signUpSchema, createRoomSchema };

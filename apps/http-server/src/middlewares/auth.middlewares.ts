@@ -1,3 +1,4 @@
+import { JWT_SECRET } from "@repo/backend-common/config";
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 const authMiddleware = function (
@@ -6,7 +7,7 @@ const authMiddleware = function (
   next: NextFunction,
 ) {
   const token = req.cookies.token;
-  const decoded = jwt.verify(token, "123123");
+  const decoded = jwt.verify(token, JWT_SECRET);
   if (
     !decoded ||
     !(decoded as JwtPayload).userId ||

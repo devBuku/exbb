@@ -9,6 +9,7 @@
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
     "prettier": "3.9.6",
     "tsx": "^4.23.15",
     "turbo": "^2.11.7",
@@ -26,5 +27,8 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "jsonwebtoken": "^9.0.3"
+  }
 }

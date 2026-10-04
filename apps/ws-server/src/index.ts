@@ -1,6 +1,7 @@
 import { WebSocketServer } from "ws";
 import * as cookie from "cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { JWT_SECRET } from "@repo/backend-common/config";
 
 const wss = new WebSocketServer({ port: 3001 });
 
@@ -14,7 +15,7 @@ wss.on("connection", function connection(ws, request): void {
   } else {
     console.log(token);
     try {
-      const decoded = jwt.verify(token, "123123");
+      const decoded = jwt.verify(token, JWT_SECRET);
       if (!decoded || (decoded as JwtPayload).userId !== 123) {
         ws.send("Unauthorized: connection closed!");
         ws.close();

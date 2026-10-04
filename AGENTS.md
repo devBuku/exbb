@@ -13,8 +13,8 @@ Run from repo root unless noted:
 
 ## Layout / entrypoints
 
-- `apps/http-server` — Express 5 API on port **3000**. Entry `src/index.ts`; routes in `src/routes/`, handlers in `src/controllers/`. `src/middlewares/auth.middlewares.ts` is an empty file.
-- `apps/ws-server` — `ws` WebSocket echo server on port **3001**. Entry `src/index.ts`.
+- `apps/http-server` — Express 5 API on port **3000**. Entry `src/index.ts`; routes in `src/routes/`, handlers in `src/controllers/`. Uses `cookie-parser`; `/api/room/*` routes require the auth middleware.
+- `apps/ws-server` — `ws` WebSocket server on port **3001**. Entry `src/index.ts`. Authenticates via the `token` cookie on the upgrade request.
 - `apps/web` — Next.js 16 (app router) UI. Entry `app/`. Typecheck is `next typegen && tsc --noEmit` (typegen must run first).
 - `packages/validation` — zod schemas + jsonwebtoken; consumed as **raw TS source** (`exports: { "./*": "./*.ts" }`), never built.
 - `packages/ui` — React components consumed as raw `.tsx` source (`exports: { "./*": "./src/*.tsx" }`). Add components with `yarn workspace @repo/ui generate:component`.
@@ -26,7 +26,9 @@ Run from repo root unless noted:
 - `http-server` and `ws-server` have **no `lint`/`check-types` scripts**, so `yarn lint` / `yarn check-types` silently skip them. Verify them manually (`yarn workspace http-server build`).
 - `http-server`/`ws-server` ship no tsconfig `include`/`references`; builds are plain `tsc -b` from `src/` to `dist/`.
 - Runtime of the built servers relies on Node 24's default TypeScript type-stripping (`require("@repo/validation/user")` resolves to a `.ts` file). Running an older Node fails.
-- Auth is a stub: JWT secret is hardcoded `"123123"` and `userId` is hardcoded `123` in `auth.controllers.ts`; `@repo/validation` has a `main: index.js` that does not exist. Don't treat any of it as production auth.
+- Auth is a stub: JWT secret is hardcoded `"123123"` and `userId` is hardcoded `123` in both `auth.controllers.ts` and the middleware/ws-server checks; `@repo/validation` has a `main: index.js` that does not exist. Don't treat any of it as production auth.
+- `ws-server` imports `jsonwebtoken` but does not declare it in its `package.json` — it only resolves via workspace hoisting; will break under strict package managers.
+- `authMiddleware` calls `jwt.verify` without try/catch, so a missing/invalid token yields a 500, not the intended 403.
 - TypeScript is pinned to `7.0.2`; Turborepo config has managed agent-guidance blocks — read the installed package's bundled docs before changing `turbo.json` (see block below).
 
 <!-- BEGIN:turborepo-agent-rules -->
