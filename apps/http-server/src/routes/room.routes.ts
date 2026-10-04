@@ -4,7 +4,8 @@ import authMiddleware from "../middlewares/auth.middlewares";
 const roomRouter = Router();
 
 roomRouter.post("/create", authMiddleware, function (req, res) {
-  res.send("Room created");
+  // @ts-ignore
+  res.json({ userId: req.userId, message: "Room created" });
 });
 
 export default roomRouter;

@@ -6,7 +6,7 @@ import roomRouter from "./routes/room.routes";
 
 const app: Express = express();
 
-app.get("/health", function (_req: Request, res: Response) {
+app.get("/health", function (_req: Request, res: Response): void {
   res.status(200).json({ message: "I am healthy" });
 });
 
@@ -18,6 +18,6 @@ app.use("/api/auth", authRouter);
 app.use("/api/room", roomRouter);
 
 const port = 3000;
-app.listen(port, function () {
+app.listen(port, function (): void {
   console.log("Http Server is running on port:", port);
 });

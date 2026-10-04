@@ -7,11 +7,14 @@ const authMiddleware = function (
 ) {
   const token = req.cookies.token;
   const decoded = jwt.verify(token, "123123");
-  if (!decoded || !(decoded as JwtPayload).userId)
+  if (
+    !decoded ||
+    !(decoded as JwtPayload).userId ||
+    (decoded as JwtPayload).userId !== 123
+  )
     return res.status(403).json({ message: "Unauthorized" });
-  if ((decoded as JwtPayload).userId !== 123) {
-    return res.status(403).json({ message: "Unauthorized" });
-  }
+  // @ts-ignore
+  req.userId = decoded.userId;
   next();
 };
 

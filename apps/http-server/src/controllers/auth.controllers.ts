@@ -1,9 +1,8 @@
 import { Request, Response } from "express";
-import { z } from "zod";
 import jwt from "jsonwebtoken";
 import { signInSchema, signUpSchema } from "@repo/validation/user";
 
-const signUpHandler = function (req: Request, res: Response) {
+const signUpHandler = function (req: Request, res: Response): void {
   try {
     const response = signUpSchema.parse(req.body);
     const { name, email, password } = response;
@@ -16,7 +15,7 @@ const signUpHandler = function (req: Request, res: Response) {
   }
 };
 
-const signInHandler = function (req: Request, res: Response) {
+const signInHandler = function (req: Request, res: Response): void {
   try {
     const response = signInSchema.parse(req.body);
     const { email, password } = response;
