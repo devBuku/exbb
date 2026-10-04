@@ -1,7 +1,7 @@
 import { WebSocketServer } from "ws";
 import * as cookie from "cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { JWT_SECRET } from "@repo/backend-common/config";
+import { JWT_SECRET } from "@repo/backend-common/env";
 
 const wss = new WebSocketServer({ port: 3001 });
 

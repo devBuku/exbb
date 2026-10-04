@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { signInSchema, signUpSchema } from "@repo/validation/user";
-import { JWT_SECRET } from "@repo/backend-common/config";
+import { JWT_SECRET } from "@repo/backend-common/env";
 
 const signUpHandler = function (req: Request, res: Response): void {
   try {
