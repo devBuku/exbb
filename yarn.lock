@@ -1564,7 +1564,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@repo/database@workspace:packages/database":
+"@repo/database@npm:*, @repo/database@workspace:packages/database":
   version: 0.0.0-use.local
   resolution: "@repo/database@workspace:packages/database"
   dependencies:
@@ -3640,6 +3640,7 @@ __metadata:
   resolution: "http-server@workspace:apps/http-server"
   dependencies:
     "@repo/backend-common": "npm:*"
+    "@repo/database": "npm:*"
     "@repo/typescript-config": "npm:*"
     "@repo/validation": "npm:*"
     "@types/cookie-parser": "npm:^1.4.10"
@@ -5401,6 +5402,7 @@ __metadata:
   resolution: "ws-server@workspace:apps/ws-server"
   dependencies:
     "@repo/backend-common": "npm:*"
+    "@repo/database": "npm:*"
     "@repo/typescript-config": "npm:*"
     "@types/ws": "npm:^8.18.2"
     cookie: "npm:^2.0.1"

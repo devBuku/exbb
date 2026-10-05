@@ -9,11 +9,12 @@
     "dev": "tsx watch ./src/index.ts"
   },
   "devDependencies": {
-    "@repo/backend-common": "*",
     "@repo/typescript-config": "*",
     "@types/ws": "^8.18.2"
   },
   "dependencies": {
+    "@repo/backend-common": "*",
+    "@repo/database": "*",
     "cookie": "^2.0.1",
     "ws": "^8.22.0"
   }

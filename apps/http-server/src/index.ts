@@ -17,7 +17,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRouter);
 app.use("/api/room", roomRouter);
 
-const port = 3000;
+const port = 3002;
 app.listen(port, function (): void {
   console.log("Http Server is running on port:", port);
 });
