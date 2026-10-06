@@ -1,37 +1,42 @@
 # exbb
 
-Turborepo monorepo (Yarn 4.18.1 workspaces, `nodeLinker: node-modules`, `.yarnrc.yml` config, no `.npmrc`). Node >= 24 required (`engines` + `devEngines` enforce yarn 4.18.1).
+Turborepo monorepo (Yarn 4.18.1 workspaces, `nodeLinker: node-modules`). Node >= 24 required (`engines` + `devEngines` enforce yarn 4.18.1).
 
 ## Commands
 
 Run from repo root unless noted:
 
-- `yarn build` / `yarn dev` / `yarn lint` / `yarn check-types` — turbo tasks across all workspaces (`turbo run <task>`)
+- `yarn build` / `yarn dev` / `yarn lint` / `yarn check-types` — turbo tasks across all workspaces
 - `yarn format` — prettier write over `**/*.{ts,tsx,md}`; no prettier config file, defaults apply
 - Single package: `yarn workspace <name> <script>`, or `turbo <task> --filter=<name>`
-- No tests exist anywhere; there is no `test` script or CI workflow. Verification = `yarn lint`, `yarn check-types`, `yarn build`.
+- No tests and no CI. Verification = `yarn lint`, `yarn check-types`, `yarn build`.
+- `yarn docker:up` / `docker:down` / `docker:logs` — Postgres (pgvector/pgvector:pg18) via docker-compose, localhost:5432, user/pass/db all `postgres`/`postgres`/`exbb`
 
 ## Layout / entrypoints
 
-- `apps/http-server` — Express 5 API on port **3000**. Entry `src/index.ts`; routes in `src/routes/`, handlers in `src/controllers/`. Uses `cookie-parser`; `/api/room/*` routes require the auth middleware.
-- `apps/ws-server` — `ws` WebSocket server on port **3001**. Entry `src/index.ts`. Authenticates via the `token` cookie on the upgrade request.
-- `apps/web` — Next.js 16 (app router) UI. Entry `app/`. Typecheck is `next typegen && tsc --noEmit` (typegen must run first).
-- `packages/validation` — zod schemas; consumed as **raw TS source** (`exports: { "./*": "./src/*.ts" }`, so import as `@repo/validation/user`), never built.
-- `packages/backend-common` — shared server bits, raw TS source. `src/env.ts` exports `JWT_SECRET` (`process.env.JWT_SECRET` falling back to `"123123"`); `src/http.ts` is an empty file.
-- `packages/database` (`@repo/db`) — stub package, only a `package.json`.
-- `packages/ui` — React components consumed as raw `.tsx` source (`exports: { "./*": "./src/*.tsx" }`). Add components with `yarn workspace @repo/ui generate:component`.
+- `apps/http-server` — Express 5 API on port **3002**. Entry `src/index.ts`; routes in `src/routes/`, handlers in `src/controllers/`, auth middleware in `src/middlewares/`. No `lint`/`check-types` scripts.
+- `apps/ws-server` — `ws` server on port **3001**. Entry `src/index.ts`. Auth via the `token` JWT cookie, in-memory `users` array tracking rooms (no DB access; state is per-process and lost on restart). No `lint`/`check-types` scripts.
+- `apps/web` — Next.js 16 (app router) UI, entry `app/`, default port 3000. Typecheck is `next typegen && tsc --noEmit` (typegen must run first).
+- `packages/validation` (`@repo/validation`) — zod schemas, raw TS source, import as `@repo/validation/user`, never built.
+- `packages/backend-common` (`@repo/backend-common`) — raw TS source. `src/env.ts` exports `JWT_SECRET` (env var falling back to `"123123"`).
+- `packages/database` (`@repo/database`) — Prisma 7 client (`src/prisma.ts`), schema `prisma/schema.prisma`, models User/Room/Chat. Raw TS source, import as `@repo/database/prisma`.
+- `packages/ui` — React components as raw `.tsx` source; add via `yarn workspace @repo/ui generate:component`.
 - `packages/eslint-config`, `packages/typescript-config` — shared configs.
+
+## Database / env
+
+- Postgres must be running (`yarn docker:up`) and `DATABASE_URL` must be set (e.g. `postgresql://postgres:postgres@localhost:5432/exbb`); `@repo/database` loads it via `dotenv/config` and throws at import time if missing. `apps/http-server/.env` sets `DATABASE_URL` (gitignored); only http-server currently imports `@repo/database`. `apps/ws-server/.env` sets it too but ws-server no longer imports `@repo/database` (auth-only now). The Prisma CLI run from `packages/database` does **not** read those files — run it with `DATABASE_URL` exported or add `packages/database/.env`.
+- The generated Prisma client (`packages/database/src/generated/`) is **not committed**; run `prisma generate` from `packages/database` after install/schema changes. Migrations: `prisma migrate deploy` (or `dev`) from `packages/database`.
+- README.md is the stale create-turbo template (mentions a `docs` app that doesn't exist) — trust the code, not it.
 
 ## Gotchas
 
-- `yarn dev` starts **both** `http-server` and `web` on port 3000 — they conflict. Run one at a time with `--filter`.
-- `http-server` and `ws-server` have **no `lint`/`check-types` scripts**, so `yarn lint` / `yarn check-types` silently skip them. Verify them manually (`yarn workspace http-server build`).
-- `http-server`/`ws-server` ship no tsconfig `include`/`references`; builds are plain `tsc -b` from `src/` to `dist/`.
-- Runtime of the built servers relies on Node 24's default TypeScript type-stripping (`require("@repo/validation/user")` resolves to a `.ts` file). Running an older Node fails.
-- Auth is a stub: JWT secret comes from `JWT_SECRET` env (`@repo/backend-common/env`) falling back to hardcoded `"123123"`, and `userId` is hardcoded `123` in controllers and the ws-server check; `@repo/validation` has a `main: index.js` that does not exist. Don't treat any of it as production auth.
-- `ws-server` imports `jsonwebtoken` and `@repo/backend-common` but declares neither in its `package.json` — they only resolve via workspace hoisting; will break under strict package managers.
-- `authMiddleware` calls `jwt.verify` without try/catch, so a missing/invalid token yields a 500, not the intended 403.
-- TypeScript is pinned to `7.0.2`; Turborepo config has managed agent-guidance blocks — read the installed package's bundled docs before changing `turbo.json` (see block below).
+- `http-server` and `ws-server` have no `lint`/`check-types` scripts, so `yarn lint`/`yarn check-types` silently skip them. Verify with `yarn workspace http-server build` / `yarn workspace ws-server build`.
+- Server builds are plain `tsc -b` from `src/` to `dist/`; runtime relies on Node 24's type-stripping for raw TS imports from `@repo/*` packages. Older Node fails.
+- `ws-server` imports `jsonwebtoken` but doesn't declare it in its `package.json` (works only via workspace hoisting; breaks under strict package managers).
+- `authMiddleware` (`apps/http-server/src/middlewares/auth.middlewares.ts`) calls `jwt.verify` without try/catch — a missing/invalid token yields a 500, not the intended 403. `req.userId` assignment uses `// @ts-ignore`.
+- Auth is still dev-grade: JWT secret falls back to `"123123"`, passwords stored in plaintext. Don't treat it as production auth.
+- TypeScript is pinned to `7.0.2`; `turbo.json` carries a managed agent-guidance block — read the installed turbo package's bundled `docs/` before changing turbo config.
 
 <!-- BEGIN:turborepo-agent-rules -->
 
