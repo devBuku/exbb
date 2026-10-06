@@ -12,7 +12,7 @@ const signUpSchema = z.object({
 });
 
 const createRoomSchema = z.object({
-  name: z.string().min(3).max(20),
+  slug: z.string().min(3).max(20),
 });
 
 export { signInSchema, signUpSchema, createRoomSchema };

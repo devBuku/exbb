@@ -11,7 +11,7 @@ const createRoomHandler = async function (req: Request, res: Response) {
   const userId = req.userId;
   try {
     const room = await prisma.room.create({
-      data: { slug: response.data.name, adminId: userId },
+      data: { slug: response.data.slug, adminId: userId },
     });
     res.status(201).json({ RoomId: room.id });
   } catch (error) {

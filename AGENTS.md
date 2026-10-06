@@ -15,7 +15,7 @@ Run from repo root unless noted:
 ## Layout / entrypoints
 
 - `apps/http-server` — Express 5 API on port **3002**. Entry `src/index.ts`; routes in `src/routes/`, handlers in `src/controllers/`, auth middleware in `src/middlewares/`. No `lint`/`check-types` scripts.
-- `apps/ws-server` — `ws` server on port **3001**. Entry `src/index.ts`. Auth via the `token` JWT cookie, in-memory `users` array tracking rooms (no DB access; state is per-process and lost on restart). No `lint`/`check-types` scripts.
+- `apps/ws-server` — `ws` server on port **3001**. Entry `src/index.ts`. Auth via the `token` JWT cookie, then an in-memory `users` array tracks rooms; `chat` messages are persisted via `@repo/database` and broadcast. No `lint`/`check-types` scripts.
 - `apps/web` — Next.js 16 (app router) UI, entry `app/`, default port 3000. Typecheck is `next typegen && tsc --noEmit` (typegen must run first).
 - `packages/validation` (`@repo/validation`) — zod schemas, raw TS source, import as `@repo/validation/user`, never built.
 - `packages/backend-common` (`@repo/backend-common`) — raw TS source. `src/env.ts` exports `JWT_SECRET` (env var falling back to `"123123"`).
@@ -25,7 +25,7 @@ Run from repo root unless noted:
 
 ## Database / env
 
-- Postgres must be running (`yarn docker:up`) and `DATABASE_URL` must be set (e.g. `postgresql://postgres:postgres@localhost:5432/exbb`); `@repo/database` loads it via `dotenv/config` and throws at import time if missing. `apps/http-server/.env` sets `DATABASE_URL` (gitignored); only http-server currently imports `@repo/database`. `apps/ws-server/.env` sets it too but ws-server no longer imports `@repo/database` (auth-only now). The Prisma CLI run from `packages/database` does **not** read those files — run it with `DATABASE_URL` exported or add `packages/database/.env`.
+- Postgres must be running (`yarn docker:up`) and `DATABASE_URL` must be set (e.g. `postgresql://postgres:postgres@localhost:5432/exbb`); `@repo/database` loads it via `dotenv/config` and throws at import time if missing. `apps/http-server/.env` and `apps/ws-server/.env` set `DATABASE_URL` (gitignored); both import `@repo/database`. The Prisma CLI run from `packages/database` does **not** read those files — run it with `DATABASE_URL` exported or add `packages/database/.env`.
 - The generated Prisma client (`packages/database/src/generated/`) is **not committed**; run `prisma generate` from `packages/database` after install/schema changes. Migrations: `prisma migrate deploy` (or `dev`) from `packages/database`.
 - README.md is the stale create-turbo template (mentions a `docs` app that doesn't exist) — trust the code, not it.
 
@@ -35,6 +35,7 @@ Run from repo root unless noted:
 - Server builds are plain `tsc -b` from `src/` to `dist/`; runtime relies on Node 24's type-stripping for raw TS imports from `@repo/*` packages. Older Node fails.
 - `ws-server` imports `jsonwebtoken` but doesn't declare it in its `package.json` (works only via workspace hoisting; breaks under strict package managers).
 - `authMiddleware` (`apps/http-server/src/middlewares/auth.middlewares.ts`) calls `jwt.verify` without try/catch — a missing/invalid token yields a 500, not the intended 403. `req.userId` assignment uses `// @ts-ignore`.
+- `GET /api/chat/:roomId` is registered **without** `authMiddleware` (unlike `/api/room/*`) — anyone can read any room's chat history. Add auth before exposing it.
 - Auth is still dev-grade: JWT secret falls back to `"123123"`, passwords stored in plaintext. Don't treat it as production auth.
 - TypeScript is pinned to `7.0.2`; `turbo.json` carries a managed agent-guidance block — read the installed turbo package's bundled `docs/` before changing turbo config.
 

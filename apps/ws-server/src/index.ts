@@ -2,6 +2,7 @@ import WebSocket, { WebSocketServer } from "ws";
 import * as cookie from "cookie";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "@repo/backend-common/env";
+import { prisma } from "@repo/database/prisma";
 
 const wss = new WebSocketServer({ port: 3001 });
 
@@ -46,7 +47,7 @@ wss.on("connection", function connection(ws, request): void {
       ws,
     });
 
-    ws.on("message", function message(data) {
+    ws.on("message", async function message(data) {
       const parsedData = JSON.parse(data as unknown as string); // {type: "join_room", id: 1}
 
       if (parsedData.type === "join_room") {
@@ -69,6 +70,15 @@ wss.on("connection", function connection(ws, request): void {
         // {type: "chat", "message": "hi there", "roomId": "123"}
         const roomId = Number(parsedData.roomId);
         const message = parsedData.message;
+
+        // this is really slow should use queue and not boardcast to everyone and then store to the database also because what if after boardcasting database gets crashed???
+        await prisma.chat.create({
+          data: {
+            message: message,
+            roomId: roomId,
+            userId: userId,
+          },
+        });
 
         users.forEach((user) => {
           if (user.rooms.includes(roomId)) {

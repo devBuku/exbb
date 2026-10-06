@@ -3,6 +3,7 @@ import { Express, Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import authRouter from "./routes/auth.routes";
 import roomRouter from "./routes/room.routes";
+import chatRouter from "./routes/chat.routes";
 
 const app: Express = express();
 
@@ -16,6 +17,7 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRouter);
 app.use("/api/room", roomRouter);
+app.use("/api/chat", chatRouter);
 
 const port = 3002;
 app.listen(port, function (): void {
