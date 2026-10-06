@@ -1,6 +1,7 @@
 import { prisma } from "@repo/database/prisma";
 import { createRoomSchema } from "@repo/validation/user";
 import { Request, Response } from "express";
+
 const createRoomHandler = async function (req: Request, res: Response) {
   const response = createRoomSchema.safeParse(req.body);
   if (!response.success) {
@@ -19,4 +20,17 @@ const createRoomHandler = async function (req: Request, res: Response) {
   }
 };
 
-export { createRoomHandler };
+const getRoomId = async function (req: Request, res: Response) {
+  const slug = req.params.slug as string;
+  const room = await prisma.room.findFirst({
+    where: {
+      slug,
+    },
+  });
+
+  res.json({
+    id: room?.id,
+  });
+};
+
+export { createRoomHandler, getRoomId };
