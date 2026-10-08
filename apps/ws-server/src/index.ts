@@ -12,7 +12,7 @@ type User = {
   ws: WebSocket;
 };
 
-const users: User[] = [];
+const users: User[] = []; // state variable therefore websocket server is stateful
 
 const checkUser = function (token: string): string | null {
   try {
@@ -63,15 +63,15 @@ wss.on("connection", function connection(ws, request): void {
           return;
         }
         user.rooms = user.rooms.filter((x) => x !== Number(parsedData.roomId));
-        console.log("leave_room: " + user.rooms);
+        console.log("leave_room: " + user?.rooms);
       }
 
       if (parsedData.type === "chat") {
-        // {type: "chat", "message": "hi there", "roomId": "123"}
+        // {type: "chat", "message": "hi there", "roomId": 1}
         const roomId = Number(parsedData.roomId);
         const message = parsedData.message;
 
-        // this is really slow should use queue and not boardcast to everyone and then store to the database also because what if after boardcasting database gets crashed???
+        // this is really slow should use queue and also not boardcast to everyone and then store to the database also because what if after boardcasting database gets crashed???
         await prisma.chat.create({
           data: {
             message: message,
