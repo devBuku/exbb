@@ -3167,11 +3167,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "drawing-fe@workspace:apps/drawing-fe"
   dependencies:
+    "@repo/backend-common": "npm:*"
     "@repo/ui": "npm:*"
     "@tailwindcss/turbopack": "npm:^4"
     "@types/node": "npm:^20"
     "@types/react": "npm:^19"
     "@types/react-dom": "npm:^19"
+    axios: "npm:^1.20.0"
     next: "npm:16.4.0"
     react: "npm:19.3.0"
     react-dom: "npm:19.3.0"
@@ -6083,6 +6085,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "web@workspace:apps/web"
   dependencies:
+    "@repo/backend-common": "npm:*"
     "@repo/eslint-config": "npm:*"
     "@repo/typescript-config": "npm:*"
     "@repo/ui": "npm:*"

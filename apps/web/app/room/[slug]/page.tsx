@@ -1,4 +1,4 @@
-import { BACKEND_URL } from "./config";
+import { BACKEND_URL } from "@repo/backend-common/env";
 import axios from "axios";
 import ChatRoom from "../../../components/ChatRoom";
 

@@ -1,3 +1,6 @@
+import { BACKEND_URL } from "@repo/backend-common/env";
+import axios from "axios";
+
 type Shapes =
   | {
       type: "rectangle";
@@ -13,15 +16,17 @@ type Shapes =
       radius: number;
     };
 
-export const initDraw = function (canvas: HTMLCanvasElement) {
+export const initDraw = async function (
+  canvas: HTMLCanvasElement,
+  roomId: string,
+) {
   const ctx = canvas.getContext("2d");
 
-  let existingShapes: Shapes[] = [];
+  let existingShapes: Shapes[] = await getExistingShapes(roomId);
 
   if (!ctx) return;
 
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  clearCanvas(existingShapes, canvas, ctx);
 
   let clicked = false;
   let startX = 0;
@@ -73,4 +78,16 @@ function clearCanvas(
       ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
     }
   });
+}
+
+async function getExistingShapes(roomId: string) {
+  const res = await axios(`${BACKEND_URL}/chats/${roomId}`);
+  const messages = res.data.messages;
+
+  const shapes = messages.map((x: { message: string }) => {
+    const messageData = JSON.parse(x.message);
+    return messageData;
+  });
+
+  return shapes;
 }
